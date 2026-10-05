@@ -1,20 +1,30 @@
+import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { AppProvider, useApp } from './src/context/AppContext';
+import AppNavigator from './src/navigation/AppNavigator';
+import { initializeDatabase } from './src/services/database.service';
 
-export default function App() {
+function Main() {
+  const { isDarkMode } = useApp();
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <>
+      <StatusBar style={isDarkMode ? 'light' : 'dark'} />
+      <AppNavigator />
+    </>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default function App() {
+  useEffect(() => {
+    initializeDatabase()
+      .then(() => console.log('SQLite inicializada con éxito'))
+      .catch((error: any) => console.error('Error inicializando SQLite:', error));
+  }, []);
+
+  return (
+    <AppProvider>
+      <Main />
+    </AppProvider>
+  );
+}
